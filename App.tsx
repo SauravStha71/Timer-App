@@ -45,11 +45,9 @@ export default function App() {
   };
 
   const evaluateResult = () => {
-    const targetTime = 10000; // 10.000 seconds in milliseconds
-    const tolerance = 10; // ±10ms tolerance
-    const difference = Math.abs(time - targetTime);
+    const targetTime = 10000; // 10.000 seconds in milliseconds (exactly, no tolerance)
 
-    if (difference <= tolerance) {
+    if (time === targetTime) {
       setResult('win');
     } else {
       setResult('lose');
@@ -123,7 +121,7 @@ export default function App() {
           {/* Target Indicator */}
           <View style={styles.targetContainer}>
             <Text style={styles.targetLabel}>Target: 10.000</Text>
-            <Text style={styles.targetRange}>Win Range: 9.990 - 10.010</Text>
+            <Text style={styles.targetRange}>Must be exactly 10.000 (no tolerance)</Text>
           </View>
         </View>
 

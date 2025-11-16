@@ -4,7 +4,7 @@ import {
   StyleSheet,
   View,
   Text,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Poppins_900Black } from '@expo-google-fonts/poppins';
@@ -16,8 +16,6 @@ import Animated, {
   interpolate,
   withRepeat,
 } from 'react-native-reanimated';
-
-const { width } = Dimensions.get('window');
 
 interface BuzzerButtonProps {
   onPress: () => void;
@@ -32,6 +30,7 @@ export const BuzzerButton: React.FC<BuzzerButtonProps> = ({
   disabled = false,
   label,
 }) => {
+  const { width, height } = useWindowDimensions();
   const [fontsLoaded] = useFonts({
     Poppins_900Black,
   });
@@ -67,7 +66,14 @@ export const BuzzerButton: React.FC<BuzzerButtonProps> = ({
     scale.value = withSpring(1);
   };
 
-  const buttonSize = Math.min(width * 0.4, 180);
+  // Responsive button size - scales with screen but has min/max limits
+  const isTablet = width >= 768;
+  const isSmallScreen = width < 375;
+  const baseSize = Math.min(width * 0.35, height * 0.2);
+  const buttonSize = Math.max(
+    Math.min(baseSize, isTablet ? 220 : 180),
+    isSmallScreen ? 120 : 140
+  );
 
   return (
     <AnimatedTouchableOpacity
@@ -85,6 +91,7 @@ export const BuzzerButton: React.FC<BuzzerButtonProps> = ({
             width: buttonSize + 20,
             height: buttonSize + 20,
             borderRadius: (buttonSize + 20) / 2,
+            aspectRatio: 1,
           },
           glowStyle,
         ]}
@@ -100,16 +107,6 @@ export const BuzzerButton: React.FC<BuzzerButtonProps> = ({
           },
         ]}
       >
-        <View
-          style={[
-            styles.innerRing,
-            {
-              width: buttonSize - 8,
-              height: buttonSize - 8,
-              borderRadius: (buttonSize - 8) / 2,
-            },
-          ]}
-        />
         <Text style={[styles.label, { fontSize: buttonSize * 0.15 }]}>
           {label}
         </Text>
@@ -122,24 +119,16 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#FBB13C',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowRadius: 16,
-    elevation: 10,
   },
   glowRing: {
     position: 'absolute',
     backgroundColor: '#FBB13C',
     opacity: 0.5,
+    overflow: 'hidden',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: '#FBB13C',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -147,12 +136,6 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 8,
     elevation: 8,
-  },
-  innerRing: {
-    position: 'absolute',
-    borderWidth: 2,
-    borderColor: '#FBB13C',
-    opacity: 0.3,
   },
   label: {
     color: '#FFFFFF',

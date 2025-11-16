@@ -5,7 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
-  Dimensions,
+  useWindowDimensions,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,8 +13,7 @@ import { useFonts, Poppins_700Bold, Poppins_800ExtraBold, Poppins_900Black } fro
 import { useTimer } from './hooks/useTimer';
 import { BuzzerButton } from './components/BuzzerButton';
 import { ResultModal } from './components/ResultModal';
-
-const { width, height } = Dimensions.get('window');
+import { Confetti } from './components/Confetti';
 
 interface AppState {
   gameState: 'idle' | 'running' | 'stopped';
@@ -22,6 +21,7 @@ interface AppState {
 }
 
 export default function App() {
+  const { width, height } = useWindowDimensions();
   const [fontsLoaded] = useFonts({
     Poppins_700Bold,
     Poppins_800ExtraBold,
@@ -30,6 +30,11 @@ export default function App() {
   const [gameState, setGameState] = useState<AppState['gameState']>('idle');
   const [result, setResult] = useState<AppState['result']>(null);
   const { time, isRunning, start, stop, reset } = useTimer();
+
+  // Calculate responsive values
+  const isTablet = width >= 768;
+  const isSmallScreen = width < 375;
+  const scaleFactor = isTablet ? 1.2 : isSmallScreen ? 0.9 : 1;
 
   const handleButtonPress = () => {
     if (gameState === 'idle') {
@@ -87,30 +92,56 @@ export default function App() {
         colors={['#D62828', '#B01E1E', '#8B1A1A']}
         style={styles.gradient}
       >
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingHorizontal: width * 0.05 }]}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Syanko Katti Roll</Text>
-            <Text style={styles.subtitle}>Timer Challenge</Text>
+          <View style={[styles.header, { marginTop: height * 0.02 }]}>
+            <Text style={[styles.title, { fontSize: Math.min(width * 0.08 * scaleFactor, isTablet ? 48 : 32) }]}>
+              Syanko Katti Roll
+            </Text>
+            <Text style={[styles.subtitle, { fontSize: Math.min(width * 0.05 * scaleFactor, isTablet ? 28 : 20) }]}>
+              Timer Challenge
+            </Text>
           </View>
 
           {/* Timer Display */}
-          <View style={styles.timerContainer}>
-            <Text style={styles.timerLabel}>Time</Text>
-            <View style={styles.timerBox}>
-              <Text style={styles.timerText}>{formatTime(time)}</Text>
+          <View style={[styles.timerContainer, { marginVertical: height * 0.02 }]}>
+            <Text style={[styles.timerLabel, { fontSize: Math.min(width * 0.05 * scaleFactor, 24) }]}>
+              Time
+            </Text>
+            <View style={[
+              styles.timerBox,
+              {
+                minWidth: width * 0.7,
+                maxWidth: isTablet ? 600 : width * 0.9,
+                paddingVertical: height * 0.04,
+                paddingHorizontal: width * 0.1,
+              }
+            ]}>
+              <Text style={[
+                styles.timerText,
+                { fontSize: Math.min(width * 0.18 * scaleFactor, isTablet ? 96 : 64) }
+              ]}>
+                {formatTime(time)}
+              </Text>
             </View>
-            <Text style={styles.instruction}>
+            <Text style={[
+              styles.instruction,
+              {
+                fontSize: Math.min(width * 0.04 * scaleFactor, isTablet ? 20 : 16),
+                paddingHorizontal: width * 0.05,
+                marginTop: height * 0.02,
+              }
+            ]}>
               {gameState === 'idle'
                 ? 'Tap Start to begin'
                 : gameState === 'running'
-                ? 'Tap Stop at exactly 10.000 seconds'
+                ? 'Tap Stop at exactly 10 seconds'
                 : 'Tap Play Again to try again'}
             </Text>
           </View>
 
           {/* Buzzer Button */}
-          <View style={styles.buttonContainer}>
+          <View style={[styles.buttonContainer, { marginVertical: height * 0.02 }]}>
             <BuzzerButton
               onPress={handleButtonPress}
               disabled={false}
@@ -119,9 +150,19 @@ export default function App() {
           </View>
 
           {/* Target Indicator */}
-          <View style={styles.targetContainer}>
-            <Text style={styles.targetLabel}>Target: 10.000</Text>
-            <Text style={styles.targetRange}>Must be exactly 10.000 (no tolerance)</Text>
+          <View style={[
+            styles.targetContainer,
+            {
+              padding: width * 0.04,
+              marginTop: height * 0.01,
+            }
+          ]}>
+            <Text style={[
+              styles.targetLabel,
+              { fontSize: Math.min(width * 0.045 * scaleFactor, isTablet ? 24 : 18) }
+            ]}>
+              Target: 10 seconds
+            </Text>
           </View>
         </View>
 
@@ -132,6 +173,9 @@ export default function App() {
           time={time}
           onPlayAgain={handlePlayAgain}
         />
+        
+        {/* Confetti Animation */}
+        <Confetti visible={result === 'win'} />
       </LinearGradient>
     </SafeAreaView>
   );
@@ -157,17 +201,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 20 : 40,
     paddingBottom: 40,
     justifyContent: 'space-between',
   },
   header: {
     alignItems: 'center',
-    marginTop: 20,
   },
   title: {
-    fontSize: width * 0.08,
     fontWeight: '900',
     color: '#FBB13C',
     textAlign: 'center',
@@ -179,7 +220,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_900Black',
   },
   subtitle: {
-    fontSize: width * 0.05,
     fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -189,10 +229,10 @@ const styles = StyleSheet.create({
   },
   timerContainer: {
     alignItems: 'center',
-    marginVertical: 30,
+    flex: 1,
+    justifyContent: 'center',
   },
   timerLabel: {
-    fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 15,
@@ -202,14 +242,12 @@ const styles = StyleSheet.create({
   },
   timerBox: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    paddingVertical: 20,
-    paddingHorizontal: 40,
     borderRadius: 20,
     borderWidth: 3,
     borderColor: '#FBB13C',
     marginBottom: 20,
-    minWidth: width * 0.6,
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#FBB13C',
     shadowOffset: {
       width: 0,
@@ -220,7 +258,6 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   timerText: {
-    fontSize: width * 0.12,
     fontWeight: '900',
     color: '#FBB13C',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
@@ -230,40 +267,34 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   instruction: {
-    fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
     textAlign: 'center',
     opacity: 0.8,
-    paddingHorizontal: 20,
     lineHeight: 22,
     fontFamily: 'Poppins_700Bold',
   },
   buttonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 20,
   },
   targetContainer: {
     alignItems: 'center',
-    marginTop: 20,
-    padding: 15,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 15,
   },
   targetLabel: {
-    fontSize: 18,
     fontWeight: '700',
     color: '#FBB13C',
     marginBottom: 5,
     fontFamily: 'Poppins_800ExtraBold',
   },
   targetRange: {
-    fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
     opacity: 0.8,
     fontFamily: 'Poppins_700Bold',
+    textAlign: 'center',
   },
 });
 

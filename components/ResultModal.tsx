@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Poppins_700Bold, Poppins_800ExtraBold, Poppins_900Black } from '@expo-google-fonts/poppins';
@@ -15,8 +15,6 @@ import Animated, {
   withTiming,
   withSpring,
 } from 'react-native-reanimated';
-
-const { width, height } = Dimensions.get('window');
 
 interface ResultModalProps {
   visible: boolean;
@@ -31,6 +29,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   time,
   onPlayAgain,
 }) => {
+  const { width, height } = useWindowDimensions();
   const [fontsLoaded] = useFonts({
     Poppins_700Bold,
     Poppins_800ExtraBold,
@@ -38,6 +37,13 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   });
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.8);
+
+  // Responsive calculations
+  const isTablet = width >= 768;
+  const isSmallScreen = width < 375;
+  const scaleFactor = isTablet ? 1.2 : isSmallScreen ? 0.9 : 1;
+  const modalWidth = Math.min(width * 0.85, isTablet ? 500 : 400);
+  const modalPadding = width * 0.06;
 
   useEffect(() => {
     if (visible) {
@@ -70,20 +76,54 @@ export const ResultModal: React.FC<ResultModalProps> = ({
       onRequestClose={() => {}}
     >
       <View style={styles.overlay}>
-        <Animated.View style={[styles.modalContainer, animatedStyle]}>
+        <View style={styles.darkOverlay} />
+        <Animated.View style={[
+          styles.modalContainer,
+          {
+            width: modalWidth,
+            padding: modalPadding,
+          },
+          animatedStyle
+        ]}>
           <LinearGradient
-            colors={isWin ? ['#FBB13C', '#FFD700'] : ['#D62828', '#B01E1E']}
+            colors={isWin ? ['#FBB13C', '#FFD700'] : ['#D62828', '#C62828', '#B01E1E']}
             style={styles.gradient}
           >
-            <Text style={styles.title}>
-              {isWin ? '🎉 Congratulations! 🎉' : '😔 Bad Luck!'}
+            <Text style={[
+              styles.title,
+              { fontSize: Math.min(width * 0.07 * scaleFactor, isTablet ? 36 : 28) }
+            ]}>
+              {isWin ? '🎉 Congratulations! 🎉' : 'Bad Luck!'}
             </Text>
-            <Text style={styles.subtitle}>
+            <Text style={[
+              styles.subtitle,
+              { fontSize: Math.min(width * 0.06 * scaleFactor, isTablet ? 30 : 24) }
+            ]}>
               {isWin ? 'You Won!' : 'Try Again!'}
             </Text>
-            <View style={styles.timeContainer}>
-              <Text style={styles.timeLabel}>Your Time:</Text>
-              <Text style={styles.timeValue}>{formatTime(time)}</Text>
+            <View style={[
+              styles.timeContainer,
+              {
+                padding: width * 0.04,
+                marginBottom: height * 0.02,
+                backgroundColor: isWin ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.2)',
+                borderWidth: isWin ? 0 : 2,
+                borderColor: '#FBB13C',
+                borderRadius: 12,
+              }
+            ]}>
+              <Text style={[
+                styles.timeLabel,
+                { fontSize: Math.min(width * 0.04 * scaleFactor, isTablet ? 20 : 16) }
+              ]}>
+                Your Time:
+              </Text>
+              <Text style={[
+                styles.timeValue,
+                { fontSize: Math.min(width * 0.08 * scaleFactor, isTablet ? 48 : 32) }
+              ]}>
+                {formatTime(time)}
+              </Text>
             </View>
             <TouchableOpacity
               onPress={onPlayAgain}
@@ -92,9 +132,20 @@ export const ResultModal: React.FC<ResultModalProps> = ({
             >
               <LinearGradient
                 colors={['#FBB13C', '#FFA500']}
-                style={styles.buttonGradient}
+                style={[
+                  styles.buttonGradient,
+                  {
+                    paddingVertical: height * 0.02,
+                    paddingHorizontal: width * 0.08,
+                  }
+                ]}
               >
-                <Text style={styles.playAgainText}>Play Again</Text>
+                <Text style={[
+                  styles.playAgainText,
+                  { fontSize: Math.min(width * 0.05 * scaleFactor, isTablet ? 24 : 20) }
+                ]}>
+                  Play Again
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
           </LinearGradient>
@@ -107,30 +158,38 @@ export const ResultModal: React.FC<ResultModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  darkOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
   },
   modalContainer: {
-    width: width * 0.85,
-    maxWidth: 400,
-    borderRadius: 20,
+    borderRadius: 15,
     overflow: 'hidden',
+    borderWidth: 4,
+    borderColor: '#FBB13C',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 10,
     },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.4,
     shadowRadius: 20,
     elevation: 20,
+    zIndex: 1000,
   },
   gradient: {
-    padding: 30,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
     fontWeight: '900',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -141,7 +200,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_900Black',
   },
   subtitle: {
-    fontSize: 24,
     fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -153,14 +211,9 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     alignItems: 'center',
-    marginBottom: 25,
-    padding: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 15,
     width: '100%',
   },
   timeLabel: {
-    fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
     marginBottom: 8,
@@ -168,7 +221,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
   },
   timeValue: {
-    fontSize: 32,
     fontWeight: '900',
     color: '#FFFFFF',
     fontFamily: 'monospace',
@@ -176,8 +228,10 @@ const styles = StyleSheet.create({
   },
   playAgainButton: {
     width: '100%',
-    borderRadius: 15,
+    borderRadius: 12,
     overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -188,13 +242,10 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   buttonGradient: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },
   playAgainText: {
-    fontSize: 20,
     fontWeight: '900',
     color: '#FFFFFF',
     textTransform: 'uppercase',

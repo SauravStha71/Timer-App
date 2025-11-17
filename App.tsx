@@ -50,9 +50,8 @@ export default function App() {
 
   const evaluateResult = () => {
     const targetTime = 10000; // 10.000 seconds in milliseconds
-    const tolerance = 1000; // 1 second tolerance (9-11 seconds)
 
-    if (Math.abs(time - targetTime) <= tolerance) {
+    if (time === targetTime) {
       setResult('win');
     } else {
       setResult('lose');

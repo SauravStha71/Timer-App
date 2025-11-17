@@ -20,9 +20,12 @@
       "adaptiveIcon": {
         "backgroundColor": "#D62828"
       },
-      
       "package": "com.syanko.timergame"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "da81f019-c73b-4201-8929-fc2f65c6c5c3"
+      }
     }
   }
 }
-

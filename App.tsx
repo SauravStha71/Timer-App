@@ -9,7 +9,8 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useFonts, Poppins_700Bold, Poppins_800ExtraBold, Poppins_900Black } from '@expo-google-fonts/poppins';
+import { useFonts as usePoppins, Poppins_700Bold, Poppins_800ExtraBold, Poppins_900Black } from '@expo-google-fonts/poppins';
+import { useFonts as usePlayfair, PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
 import { useTimer } from './hooks/useTimer';
 import { BuzzerButton } from './components/BuzzerButton';
 import { ResultModal } from './components/ResultModal';
@@ -21,11 +22,15 @@ interface AppState {
 
 export default function App() {
   const { width, height } = useWindowDimensions();
-  const [fontsLoaded] = useFonts({
+  const [poppinsLoaded] = usePoppins({
     Poppins_700Bold,
     Poppins_800ExtraBold,
     Poppins_900Black,
   });
+  const [playfairLoaded] = usePlayfair({
+    PlayfairDisplay_700Bold,
+  });
+  const fontsLoaded = poppinsLoaded && playfairLoaded;
   const [gameState, setGameState] = useState<AppState['gameState']>('idle');
   const [result, setResult] = useState<AppState['result']>(null);
   const { time, isRunning, start, stop, reset } = useTimer();
@@ -213,7 +218,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
     letterSpacing: 1,
-    fontFamily: 'Poppins_900Black',
+    fontFamily: 'PlayfairDisplay_700Bold',
   },
   subtitle: {
     fontWeight: '700',

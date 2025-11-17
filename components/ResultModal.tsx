@@ -91,13 +91,13 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           >
             <Text style={[
               styles.title,
-              { fontSize: Math.min(width * 0.07 * scaleFactor, isTablet ? 36 : 28) }
+              { fontSize: Math.min(width * 0.05 * scaleFactor, isTablet ? 24 : 20) }
             ]}>
-              {isWin ? '🎉 Congratulations! 🎉' : 'Bad Luck!'}
+              {isWin ? '👏 Congratulations! 👏' : '😢 Bad Luck! 😢'}
             </Text>
             <Text style={[
               styles.subtitle,
-              { fontSize: Math.min(width * 0.06 * scaleFactor, isTablet ? 30 : 24) }
+              { fontSize: Math.min(width * 0.05 * scaleFactor, isTablet ? 24 : 20) }
             ]}>
               {isWin ? 'You Won!' : 'Try Again!'}
             </Text>
@@ -107,8 +107,8 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                 padding: width * 0.04,
                 marginBottom: height * 0.02,
                 backgroundColor: isWin ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.2)',
-                borderWidth: isWin ? 0 : 2,
-                borderColor: '#FBB13C',
+                borderWidth: 2,
+                borderColor: '#FFFFFF',
                 borderRadius: 12,
               }
             ]}>

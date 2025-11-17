@@ -13,7 +13,6 @@ import { useFonts, Poppins_700Bold, Poppins_800ExtraBold, Poppins_900Black } fro
 import { useTimer } from './hooks/useTimer';
 import { BuzzerButton } from './components/BuzzerButton';
 import { ResultModal } from './components/ResultModal';
-import { Confetti } from './components/Confetti';
 
 interface AppState {
   gameState: 'idle' | 'running' | 'stopped';
@@ -50,9 +49,10 @@ export default function App() {
   };
 
   const evaluateResult = () => {
-    const targetTime = 10000; // 10.000 seconds in milliseconds (exactly, no tolerance)
+    const targetTime = 10000; // 10.000 seconds in milliseconds
+    const tolerance = 1000; // 1 second tolerance (9-11 seconds)
 
-    if (time === targetTime) {
+    if (Math.abs(time - targetTime) <= tolerance) {
       setResult('win');
     } else {
       setResult('lose');
@@ -173,9 +173,6 @@ export default function App() {
           time={time}
           onPlayAgain={handlePlayAgain}
         />
-        
-        {/* Confetti Animation */}
-        <Confetti visible={result === 'win'} />
       </LinearGradient>
     </SafeAreaView>
   );

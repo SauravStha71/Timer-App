@@ -20,7 +20,7 @@
       "adaptiveIcon": {
         "backgroundColor": "#D62828"
       },
-      "supportsTablet": true,
+      
       "package": "com.syanko.timergame"
     }
   }

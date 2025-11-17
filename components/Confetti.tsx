@@ -47,11 +47,12 @@ const ConfettiPiece: React.FC<{ index: number; color: string; delay: number }> =
       }
     );
     
-    rotate.value = withRepeat(
-      withTiming(360, { duration: 800 + Math.random() * 400, easing: Easing.linear }),
-      -1,
-      false
-    );
+    // Rotation completes with duration, then stops (no infinite repeat)
+    const rotationDuration = 800 + Math.random() * 400;
+    rotate.value = withTiming(360, { 
+      duration: rotationDuration, 
+      easing: Easing.linear 
+    });
     
     opacity.value = withSequence(
       withTiming(1, { duration: 300 }),
@@ -89,14 +90,14 @@ export const Confetti: React.FC<ConfettiProps> = ({ visible }) => {
   if (!visible) return null;
 
   const colors = ['#FBB13C', '#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'];
-  const pieces = Array.from({ length: 50 }, (_, i) => ({
+  const pieces = Array.from({ length: 25 }, (_, i) => ({
     id: i,
     color: colors[i % colors.length],
     delay: i * 20,
   }));
 
   return (
-    <View style={[StyleSheet.absoluteFill, styles.container]} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, styles.container]} pointerEvents="box-none">
       {pieces.map((piece) => (
         <ConfettiPiece
           key={piece.id}

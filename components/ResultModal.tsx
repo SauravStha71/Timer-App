@@ -75,8 +75,8 @@ export const ResultModal: React.FC<ResultModalProps> = ({
       animationType="none"
       onRequestClose={() => {}}
     >
-      <View style={styles.overlay}>
-        <View style={styles.darkOverlay} />
+      <View style={styles.overlay} pointerEvents="box-none">
+        <View style={styles.darkOverlay} pointerEvents="none" />
         <Animated.View style={[
           styles.modalContainer,
           {
@@ -84,7 +84,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
             padding: modalPadding,
           },
           animatedStyle
-        ]}>
+        ]} pointerEvents="box-none">
           <LinearGradient
             colors={isWin ? ['#FBB13C', '#FFD700'] : ['#D62828', '#C62828', '#B01E1E']}
             style={styles.gradient}
